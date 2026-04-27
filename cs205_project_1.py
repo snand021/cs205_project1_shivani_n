@@ -7,11 +7,30 @@ import time #Referenced this when using timer:  https://realpython.com/python-ti
 #(https://www.python-engineer.com/courses/advancedpython/01-lists/ ) I referenced other tutorials on this website as well.
 
 
-#Goal States from Project 1 Instruction
-goalState = [[1,2,3],
-            [4,5,6],
-            [7,8,0]]
 
+goalState = [1,2,3,4,5,6,7,8,9,0,0,0,0] #4 blanks and 1 is the sergeant
+
+trivial = [[0,2,3,4,5,6,7,8,9,1,0,0,0]]
+
+#have a map of all the neighbors of each spot so we know all possible moves for each postiion
+neighbors = {
+    0:[1], #is actually position 1 in the image
+    1:[0,2], 
+    2:[1,3], 
+    3:[2,4,10], 
+    4:[3,5],
+    5:[4,6,11],
+    6:[5,7],
+    7:[6,8,12],
+    8:[7,9],
+    9:[8],
+    10:[3],
+    11:[5],
+    12:[7]
+
+}
+
+'''
 trivial = [[1,6,7],
            [5,0,3],
            [4,8,2]]
@@ -34,6 +53,8 @@ doable = [[0,1,2],
 ohboy =  [[8,7,1],
         [6,0,2],
         [5,4,3]]
+    
+'''
 
 
 #Node class reference: https://www.educative.io/answers/how-to-solve-the-8-puzzle-problem-using-the-a-star-algorithm 
@@ -47,98 +68,60 @@ class Node:
         self.depth = depth #depth/level of the tree
         self.parent = parent #parent/previous state of puzzle
         self.heur = heur #heurisitc value for the node
-        self.child1 = None #up
-        self.child2 = None #down
-        self.child3 = None #left
-        self.child4 = None #right
+      
     def __lt__(self, other): #function that compares nodes, also min queue works with smallest values first
         return (self.depth + self.heur) < (other.depth + other.heur)
 
-def findblank(puzzle) : #finds 0
-    for i in range(len(puzzle)):
-        for j in range(len(puzzle[i])):
-            if(puzzle[i][j] == 0):
-                return i, j #returns col and row position of 0
 
+#CHANGED to: find all the blanks instead of just one blank
+def findblank(puzzle) : #finds 0
+    blanks = []
+    for i in range(len(puzzle)):
+        if(puzzle[i]==0):
+            blanks.append(i)
+    return blanks #returns list of all positions of blanks
+
+#CHANGED
 #Took inspiration/got idea from this: https://stackoverflow.com/questions/17873384/how-to-deep-copy-a-list      
 def copyPuzzle(puzzle): #to make a copy of the puzzle
     copy =[]
     for i in puzzle:
-        row = []
-        for j in i:
-            row.append(j)
-        copy.append(row)
+        copy.append(i)
     return copy
 
 
 #Used this link to understand the function: https://www.educative.io/answers/how-to-solve-the-8-puzzle-problem-using-the-a-star-algorithm 
 #Additionally, I consulted with TA to check my logic
+
+#CHANGED
 def generateChild(node, searchName):
-    puzzle = node.puzzle
-    #find posiiton of blank (0)
-    ipos, jpos = findblank(puzzle)
-    #see if it can move up, down, left, or right - ensure each is valid
+   puzzle = node.puzzle #current state of the puzzle were looking at
+   blanks = findblank(puzzle) #find all the blanks in the puzzle (all possible spots we can move to)
+   children=[]
+   '''
+   logic 
+   1. look for blanks
+   2. for every blank, look at its neighbors and see if theres a man there
+   3. if man is there, then move that man into the blank
 
-    child1Node = None
-    child2Node = None
-    child3Node = None
-    child4Node = None
+   each child state only represents one move
+   '''
+   #for every blank, look at the positions connected to it and if connected pos, has a man, move that man into the blank
+   for b in blanks:
+       for n in neighbors[b]: #for every neighbor of the blank
+           if(puzzle[n] != 0): #if there is a man in the neighbor position, move that man into the blank and create a child node with that new puzzle state
+               newPuzzle = copyPuzzle(puzzle) #make a copy of the puzzle to change. we need og puzzle for other child nodes
+               
+               #swap
+               newPuzzle[b] = newPuzzle[n] #moves man into blank spot
+               newPuzzle[n] = 0 #makes old spot blank
 
-    #up
-    copy1 = copyPuzzle(puzzle)
-    #if moving blank up is valid
-    if(ipos - 1 >= 0): #if there is space above the blank
-        temp = copy1[ipos-1][jpos]
-        copy1[ipos-1][jpos] = 0
-        copy1[ipos][jpos] = temp #move blank up
-        child1Node = Node(puzzle = copy1, depth = node.depth +1, parent = node, heur =heuristics(copy1,searchName)) #create node
-        node.child1 = child1Node #set created node to child of original node
+               #create child node with new puzzle state, depth+1 (means its in the next level of the tree), parent is the current node, and heurisitics is calculated with the new puzzle state
+               childNode = Node (puzzle = newPuzzle, depth = node.depth + 1, parent = node, heur = heuristics(newPuzzle, searchName))
+               children.append(childNode) #adds new possible move to list of children
+   return children
+   
 
-    
-    #down
-    copy2 = copyPuzzle(puzzle)
-    #if moving blank down is valid
-    if(ipos + 1 < len(puzzle)): #if there is space below the blank
-        temp = copy2[ipos+1][jpos]
-        copy2[ipos+1][jpos] = 0
-        copy2[ipos][jpos] = temp #move blank down
-        child2Node = Node(puzzle = copy2, depth = node.depth +1, parent = node, heur =heuristics(copy2,searchName)) #create node
-        node.child2 = child2Node #set created node to child of original node
-
-    #left 
-    copy3 = copyPuzzle(puzzle)
-    #if moving blank left is valid
-    if(jpos - 1 >= 0): #if there is space left of the blank
-        temp = copy3[ipos][jpos-1]
-        copy3[ipos][jpos-1] = 0
-        copy3[ipos][jpos] = temp #move blank left
-        child3Node = Node(puzzle = copy3, depth = node.depth +1, parent = node, heur =heuristics(copy3,searchName)) #create node
-        node.child3 = child3Node #set created node to child of original node
-
-    
-    #right
-    copy4 = copyPuzzle(puzzle)
-    #if moving blank right is valid
-    if(jpos + 1 < len(puzzle[0])): #if there is space right of the blank
-        temp = copy4[ipos][jpos+1]
-        copy4[ipos][jpos+1] = 0
-        copy4[ipos][jpos] = temp #move blank right
-        child4Node = Node(puzzle = copy4, depth = node.depth +1, parent = node, heur =heuristics(copy4,searchName)) #create node
-        node.child4 = child4Node #set created node to child of original node
-
-
-    children = [] #list of children
-
-    #ensure all the children are valid
-    if child1Node:
-        children.append(child1Node)
-    if child2Node:
-        children.append(child2Node)
-    if child3Node:
-        children.append(child3Node)
-    if child4Node:
-        children.append(child4Node)
-    return children
     
     
     #NOTES from TA office hours
@@ -165,7 +148,7 @@ def select_and_init_algorithm(puzzle):
 
 #From Project 1 Instructions
 def main():
-    puzzle_mode = input("Welcome to an 8-Puzzle Solver. Type '1' to use a default puzzle, or '2' to create your own."+ '\n')
+    puzzle_mode = input("Welcome to 9 Men in a Trench Solver. Type '1' to use a default puzzle, or '2' to create your own."+ '\n')
     if puzzle_mode == "1":
         select_and_init_algorithm(init_default_puzzle_mode()) #algorithm
     if puzzle_mode == "2":
