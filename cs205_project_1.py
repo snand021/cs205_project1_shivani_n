@@ -10,7 +10,11 @@ import time #Referenced this when using timer:  https://realpython.com/python-ti
 
 goalState = [1,2,3,4,5,6,7,8,9,0,0,0,0] #4 blanks and 1 is the sergeant
 
-trivial = [[0,2,3,4,5,6,7,8,9,1,0,0,0]]
+#test
+#default = [1,2,3,4,5,6,7,8,9,0,0,0,0] #goal state to see if program runs
+default = [0,2,3,4,5,6,7,8,9,1,0,0,0] #original
+#default = [0,2,3,4,5,7,6,8,9,1,0,0,0] #testing swapped adjacent pairs
+
 
 #have a map of all the neighbors of each spot so we know all possible moves for each postiion
 neighbors = {
@@ -31,32 +35,12 @@ neighbors = {
 }
 
 '''
-trivial = [[1,6,7],
-           [5,0,3],
-           [4,8,2]]
+trying different goal states:
 
-trivial1 = [[1,2,3],
-           [4,5,6],
-           [7,8,0]]
-
-veryEasy = [[1,2,3],
-            [4,5,6],
-            [7,0,8]]
-            
-easy     =  [[1,2,0],
-            [4,5,3],
-            [7,8,6]]
-
-doable = [[0,1,2],
-        [4,5,3],
-        [7,8,6]]
-ohboy =  [[8,7,1],
-        [6,0,2],
-        [5,4,3]]
     
 '''
 
-
+#CHANGED
 #Node class reference: https://www.educative.io/answers/how-to-solve-the-8-puzzle-problem-using-the-a-star-algorithm 
 class Node:
     def __init__(self, puzzle, root = None, depth = 0, parent = None,  heur = 0):
@@ -133,7 +117,7 @@ def generateChild(node, searchName):
         
 
 
-#From Project 1 Instructions
+#From Project 1 Instructions #CHANGED
 def select_and_init_algorithm(puzzle):
     algorithm = input("Select algorithm. (1) for Uniform Cost Search, (2) for the Misplaced Tile Heuristic, ""or (3) the Manhattan Distance Heuristic." + '\n')
     if algorithm == "1":
@@ -146,55 +130,40 @@ def select_and_init_algorithm(puzzle):
         print("Invalid input")
 
 
-#From Project 1 Instructions
+#From Project 1 Instructions #CHANGED - need to review
 def main():
     puzzle_mode = input("Welcome to 9 Men in a Trench Solver. Type '1' to use a default puzzle, or '2' to create your own."+ '\n')
     if puzzle_mode == "1":
         select_and_init_algorithm(init_default_puzzle_mode()) #algorithm
     if puzzle_mode == "2":
-        print("Enter your puzzle, using a zero to represent the blank. " + "Please only enter valid 8-puzzles. Enter the puzzle demilimiting " +"the numbers with a space. RET only when finished." + '\n')
-        puzzle_row_one = input("Enter the first row: ")
-        puzzle_row_two = input("Enter the second row: ")
-        puzzle_row_three = input("Enter the third row: ")
-        puzzle_row_one = puzzle_row_one.split()
-        puzzle_row_two = puzzle_row_two.split()
-        puzzle_row_three = puzzle_row_three.split()
-        for i in range(0, 3):
-            puzzle_row_one[i] = int(puzzle_row_one[i])
-            puzzle_row_two[i] = int(puzzle_row_two[i])
-            puzzle_row_three[i] = int(puzzle_row_three[i])
-        user_puzzle = [puzzle_row_one, puzzle_row_two, puzzle_row_three]
+        print("Enter your puzzle, using a zero to represent the blanks. " + "Please only enter puzzles. Enter the puzzle demilimiting " +"the numbers with a space. RET only when finished." + '\n')
+        trench = input("Enter the trench state: ")
+        trench = trench.split() #split the input string into a list of strings
+        for i in range(len(trench)):
+            trench[i] = int(trench[i])
+        user_puzzle = trench  # 
         select_and_init_algorithm(user_puzzle)
     return 
 
 
-#From Project 1 Instructions
+#From Project 1 Instructions #CHANGED - need to review
 def init_default_puzzle_mode():
-    selected_difficulty = input("You wish to use a default puzzle. Please enter a desired difficulty on a scale from 0 to 4." + '\n')
+    selected_difficulty = input("You wish to use a default puzzle. Press 0." + '\n')
     if selected_difficulty == "0":
-        print("Difficulty of 'Trivial' selected.")
-        return trivial
-    if selected_difficulty == "1":
-        print("Difficulty of 'Very Easy' selected.")
-        return veryEasy
-    if selected_difficulty == "2":
-        print("Difficulty of 'Easy' selected.")
-        return easy
-    if selected_difficulty == "3":
-        print("Difficulty of 'Doable' selected.")
-        return doable
-    if selected_difficulty == "4":
-        print("Difficulty of 'Easy' selected.")
-        return ohboy
+        print("Difficulty of 'Default' selected.")
+        return default
 
     
 
-#From Project 1 Instructions
+#From Project 1 Instructions #CHANGED - need to review
 def print_puzzle(puzzle):
-    for i in range(0,3): 
-        print(puzzle[i])
+    print("Bottom trench:", puzzle[0:10])
+    print("Top holes:")
+    print("10:", puzzle[10], "11:", puzzle[11], "12:", puzzle[12])
     print('\n')
 
+
+#CHANGED
 #Referenced following links: 
 # Link: https://docs.python.org/3/tutorial/datastructures.html 
 #Link: https://www.w3schools.com/python/python_dictionaries.asp 
@@ -206,35 +175,40 @@ def print_puzzle(puzzle):
 def mapping(goalState): #general function to create dictionary so you can map the values and find out where all the numbers are
     chart = {} #create empty dict - chart that will store location of all tiles currently
     for i in range(len(goalState)):
-        for j in range(len(goalState[i])): #calculates key for dict
-            chart[goalState[i][j]] = (i,j) #adds tuple (value) to the chart (dictionary)
+        if goalState[i] != 0: #dont count the blanks, only map the correct positions of the men
+            chart[goalState[i]] = i #1D chart
     return chart
 #tile value/number -> key, goal position (i,j) -> value 
 
-
+#CHANGED
 #For manhattan, I referenced the following and the slides as well:
 #Link: https://docs.python.org/3/tutorial/datastructures.html 
 #Link: https://www.w3schools.com/python/python_dictionaries.asp 
 #Link:https://stackoverflow.com/questions/16318757/calculating-manhattan-distance-in-python-in-an-8-puzzle-game 
 def heuristics(puzzle, heurName): #returns heuristic
     
-    if heurName == "misplaced tile":
+    if heurName == "misplaced tile": #is there a man here, and is that man in the wrong place? if so , add 1 to count
         count = 0
         for i in range(len(goalState)): #num of rows
-            for j in range(len(goalState[i])): #num of columns
-                if(puzzle[i][j]!= goalState[i][j] and puzzle[i][j] != 0): #check if goalstate placement is equal to puzzle; ignore 0 because its a blank
+           if puzzle[i] != 0 and puzzle[i] != goalState[i]:#check if goalstate placement is equal to puzzle; ignore 0 because its a blank and we don't care which exact 0 goes in each place
                     count += 1
         return count
+    
     elif heurName == "manhattan distance": #need to find shortest distance to goal position for each tile, and add all the ones that arent in the goal position
+        trench_hole = {10:3, 11:5, 12:7} #mapping of trench hole positions to their corresponding row numbers (i) in the 1D list (their real pos)
         positions = mapping(goalState)
         distance = 0
-        for i in range(len(puzzle)):
-            for j in range(len(puzzle[i])):
-                chosen = puzzle[i][j] #gets num/tile at (i,j)
-                if (chosen != 0 and puzzle[i][j] != goalState[i][j]): #if its not a blank tile and if its already not in the goal position, then get its distance
-                    actual_i = positions[chosen][0] #extracts row of num we are looking for (first item)
-                    actual_j = positions[chosen][1] #extracts col (2nd item)
-                    distance += abs(j - actual_j) + abs(i - actual_i) #formula from the slides
+        for i in range(len(puzzle)): #goes through entire trench/puzzle
+            chosen = puzzle[i] #gets solider at curr index
+            if chosen != 0: #if its a man and not a blank
+                #if tile is in the hole, use the hole's real position instead
+                real_pos = trench_hole.get(i,i) #look up i  in dict, if not there, use i as default
+
+                if i in trench_hole:
+                    distance += 1 #if the tile is in the hole, add 1 to the distance because it has to get out of the hole first before it can move to its goal position
+                goal_pos = positions[chosen] #find the goal position of the tile we are looking at
+                distance += abs(real_pos - goal_pos)
+
         return distance
     
     elif heurName == "uniform":
@@ -252,7 +226,7 @@ def heuristics(puzzle, heurName): #returns heuristic
 #use heapq since it maintains smallest element/lowest priority at top
 
 
-
+#CHANGED
 #Referenced this link to understand queues: Link: https://www.geeksforgeeks.org/queue-in-python/#google_vignette 
 #Referenced this to understand sets: https://docs.python.org/3/library/stdtypes.html#set 
 #More links I referenced (for tuples and such):
@@ -300,16 +274,10 @@ def generalSearch(initialState, heurName):
     
         #convert list of lists into tuple of tuples so i can put it in a set
         #tuples - less memory and faster access
-        nodeTuple = []
-        for i in node.puzzle:
-            nodeTuple.append(tuple(i))
-        nodeTuple = tuple(nodeTuple)
+        nodeTuple = tuple(node.puzzle)
 
         #convert to tuple so you can compare to other tuples
-        goalTuple = []
-        for i in goalState:
-            goalTuple.append(tuple(i))
-        goalTuple = tuple(goalTuple)
+        goalTuple = tuple(goalState)
 
        
         if(nodeTuple == goalTuple): #if puzzle is at goal state, we are finished
@@ -349,10 +317,7 @@ def generalSearch(initialState, heurName):
         #add the child nodes to the queue after turning them into hashable tuples
         for i in children:
             if i is not None:
-                state = []
-                for j in i.puzzle:
-                    state.append(tuple(j))
-                state = tuple(state)
+                state = tuple(i.puzzle)
                 #TESTING
                 #print(f"state:{state} visited: {visited}")
                 if state not in visited:
