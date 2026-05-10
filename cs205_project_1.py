@@ -2,6 +2,7 @@ import heapq #Referenced this when using heapq:  https://docs.python.org/3/libra
 #from queue import Queue #didnt use
 import time #Referenced this when using timer:  https://realpython.com/python-timer/  
 
+#I also used my previous knowledge of this class and my cs170 project 1 code as a template. I will attach the link to the github on my report. 
 #In general I used this python documentation:
 #(https://docs.python.org/3/tutorial/index.html ) 
 #(https://www.python-engineer.com/courses/advancedpython/01-lists/ ) I referenced other tutorials on this website as well.
@@ -12,8 +13,21 @@ goalState = [1,2,3,4,5,6,7,8,9,0,0,0,0] #4 blanks and 1 is the sergeant
 
 #test
 #default = [1,2,3,4,5,6,7,8,9,0,0,0,0] #goal state to see if program runs
-default = [0,2,3,4,5,6,7,8,9,1,0,0,0] #original
-#default = [0,2,3,4,5,7,6,8,9,1,0,0,0] #testing swapped adjacent pairs
+#default = [0,2,3,4,5,6,7,8,9,1,0,0,0] #original
+default = [0,2,3,4,5,7,6,8,9,1,0,0,0] #testing swapped adjacent pairs
+
+#random states
+#default = [0,1,2,3,4,5,6,7,8,9,0,0,0] #random 1 - tested TRUE 0.0035 sec, depth 9, expanded nodes: 9, mql: 25
+
+#default = [1,2,3,4,5,6,7,0,9,8,0,0,0] #random 2 - tested True 0.0137 sec, dep 12, expanded: 228, mql: 425
+#default = [1,2,3,4,5,6,0,7,8,9,0,0,0] #random 3 - tested True 0.0026 sec, depth 3, expanded nodes: 3, mql: 10
+#default = [0,1,4,0,7,3,9,2,5,8,0,0,6] #random 4 - tested True 56.8235, dep 70, en: 1603565, mql: 836844
+#default = [9,8,7,6,5,4,3,2,1,0,0,0,0] #random 5 - tested FALSE - exceeded 2 hour time limit
+#default = [4,9,7,5,2,0,1,0,0,3,0,6,8] #random 6 - tested FALSE - exceeded 2 hour time limit
+# default =[0,0,0,0,1,2,3,4,5,6,7,8,9] #random 7 - tested True 13.2307, dep 61, en: 364384, mql: 230214
+#default = [2,4,6,8,0,0,0,0,1,3,5,7,9] #random 8 - tested True 475.8562, dep: 85, en: 6884526, mql: 2597912
+#default = [5,6,3,2,0,7,0,9,4,0,1,0,8] #random 9 - tested FALSE - exceeded 2 hour time limit
+#default = [0,0,0,9,8,7,6,5,4,3,2,1,0] #random 10 - tested FALSE - exceeded 2 hour time limit
 
 
 #have a map of all the neighbors of each spot so we know all possible moves for each postiion
@@ -40,7 +54,6 @@ trying different goal states:
     
 '''
 
-#CHANGED
 #Node class reference: https://www.educative.io/answers/how-to-solve-the-8-puzzle-problem-using-the-a-star-algorithm 
 class Node:
     def __init__(self, puzzle, root = None, depth = 0, parent = None,  heur = 0):
@@ -75,7 +88,7 @@ def copyPuzzle(puzzle): #to make a copy of the puzzle
 
 
 #Used this link to understand the function: https://www.educative.io/answers/how-to-solve-the-8-puzzle-problem-using-the-a-star-algorithm 
-#Additionally, I consulted with TA to check my logic
+
 
 #CHANGED
 def generateChild(node, searchName):
@@ -108,7 +121,7 @@ def generateChild(node, searchName):
 
     
     
-    #NOTES from TA office hours
+    #Old NOTES from TA office hours (previous class)
     #pop the one with the least cost in the q
     #will insert all 4 children in the priority q
     #check while q is not empty when you search priority q
@@ -130,7 +143,7 @@ def select_and_init_algorithm(puzzle):
         print("Invalid input")
 
 
-#From Project 1 Instructions #CHANGED - need to review
+#From Project 1 Instructions #CHANGED 
 def main():
     puzzle_mode = input("Welcome to 9 Men in a Trench Solver. Type '1' to use a default puzzle, or '2' to create your own."+ '\n')
     if puzzle_mode == "1":
@@ -146,7 +159,7 @@ def main():
     return 
 
 
-#From Project 1 Instructions #CHANGED - need to review
+#From Project 1 Instructions #CHANGED 
 def init_default_puzzle_mode():
     selected_difficulty = input("You wish to use a default puzzle. Press 0." + '\n')
     if selected_difficulty == "0":
@@ -155,7 +168,7 @@ def init_default_puzzle_mode():
 
     
 
-#From Project 1 Instructions #CHANGED - need to review
+#From Project 1 Instructions #CHANGED 
 def print_puzzle(puzzle):
     print("Bottom trench:", puzzle[0:10])
     print("Top holes:")
@@ -163,7 +176,7 @@ def print_puzzle(puzzle):
     print('\n')
 
 
-#CHANGED
+#CHANGED to 1D list instead of 2D
 #Referenced following links: 
 # Link: https://docs.python.org/3/tutorial/datastructures.html 
 #Link: https://www.w3schools.com/python/python_dictionaries.asp 
